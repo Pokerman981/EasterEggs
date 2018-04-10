@@ -27,7 +27,7 @@ public class InteractBlockListener {
         Location<World> location = event.getTargetBlock().getLocation().get();
         Optional<TileEntity> tileEntity = location.getTileEntity();
 
-        if (!location.getTileEntity().get().getType().equals(TileEntityTypes.SKULL)) return;
+        if (!tileEntity.isPresent() || !location.getTileEntity().get().getType().equals(TileEntityTypes.SKULL)) return;
 
         if (Main.adding.containsKey(player.getUniqueId())){
             Data data = Main.adding.get(player.getUniqueId());

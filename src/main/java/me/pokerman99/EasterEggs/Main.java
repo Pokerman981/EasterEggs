@@ -97,14 +97,20 @@ public class Main {
     public static String pass;
     
     @Listener
-    public void onPreInit(GameInitializationEvent event) throws IOException{
+    public void onInit(GameInitializationEvent event) throws IOException{
 		Optional<EconomyService> optionalEconomyService = Sponge.getServiceManager().provide(EconomyService.class);
         economyService = optionalEconomyService.get();
         rootNode = loader.load();
         if (!defaultConfig.toFile().exists()){
             generateConfig();
         }
-    	
+
+        if (rootNode.getNode("config-version").getString().equals("1.2")){
+            rootNode.getNode("locations").setValue(null);
+            rootNode.getNode("easter").setValue(null);
+            generateConfig();
+        }
+
         loadSQL();
 
         registerCommands();

@@ -5,6 +5,8 @@ import me.pokerman99.EasterEggs.Utils;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.channel.MessageChannel;
 
 import java.io.IOException;
 
@@ -27,12 +29,15 @@ public class FoundListener {
             try {plugin.save();} catch (IOException e1){}
             Utils.sendMessage(player, "&aSuccessfully found a present! You've found " + (found+1) + "/" + (total) + " presents!");
             Utils.sendMessage(player, "&aYou've been rewarded 10 tokens and $1000!");
+            Utils.sendMessage(player, "");
 
             Utils.depositEcon(player, 1000.0);
             Utils.setPlayerBalance(player.getUniqueId(), Utils.getPlayerBalance(player.getUniqueId()) + 10);
+            return;
 
         } else {
             Utils.sendMessage(player, "&cYou've already found this present! " + found + "/" + total + " currently found!");
+            Utils.sendMessage(player, "");
             return;
         }
     }
