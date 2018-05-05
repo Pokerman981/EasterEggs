@@ -17,6 +17,7 @@ import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import java.io.IOException;
 import java.util.Optional;
 
 public class InteractBlockListener {
@@ -24,6 +25,7 @@ public class InteractBlockListener {
 	@Listener
 	public void onRightClick(InteractBlockEvent.Secondary.MainHand event, @First Player player) {
         if (!(event instanceof InteractBlockEvent.Secondary.MainHand)) return;
+        if (!event.getTargetBlock().getLocation().isPresent()) return;
         Location<World> location = event.getTargetBlock().getLocation().get();
         Optional<TileEntity> tileEntity = location.getTileEntity();
 
@@ -32,10 +34,23 @@ public class InteractBlockListener {
         if (Main.adding.containsKey(player.getUniqueId())){
             Data data = Main.adding.get(player.getUniqueId());
             tileEntity.get().offer(new Data(data.getEggdata()));
+            Main.rootNode.getNode("types", data.getEggdata().get(0), "locations", data.getEggdata().get(1)).setValue(location.getBiomePosition() + " " + Utils.getDim(player.getWorld().getUniqueId()));
+            Main.rootNode.getNode("types", data.getEggdata().get(0), "total").setValue(data.getEggdata().get(1));
+            try {Main.getInstance().save();} catch (IOException e){}
 
             Utils.sendMessage(player, "&aSuccessfully set egg/present!");
 
             Main.adding.remove(player.getUniqueId());
+
+        } else if (Main.removing.containsKey(player.getUniqueId())){
+            Main.removing.remove(player.getUniqueId());
+            Data data = tileEntity.get().get(Data.class).get();
+            int total = Main.rootNode.getNode("types", data.getEggdata().get(0), "total").getInt();
+            Main.rootNode.getNode("types", data.getEggdata().get(0), "total").setValue(total - 1);
+            Main.rootNode.getNode("types", data.getEggdata().get(0), "locations", data.getEggdata().get(1)).setValue(null);
+            try{Main.getInstance().save();} catch (IOException e){}
+            location.removeBlock();
+            Utils.sendMessage(player, "&aSuccessfully broke the block!");
 
         } else if (location.get(Data.class).isPresent()){
             Data data = location.get(Data.class).get();
@@ -43,8 +58,6 @@ public class InteractBlockListener {
 
             Sponge.getEventManager().post(new FoundEvent(player, data, cause));
         }
-
-
     }
-	
+
 }

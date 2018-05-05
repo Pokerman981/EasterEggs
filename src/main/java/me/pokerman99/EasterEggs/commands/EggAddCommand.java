@@ -36,9 +36,6 @@ public class EggAddCommand implements CommandExecutor{
 		temp.add(event.toString());
 		temp.add(String.valueOf((Integer.valueOf(total) +1)));
 
-		Main.rootNode.getNode("types", event.name(), "total").setValue(Integer.valueOf(total) + 1);
-		try{plugin.save();} catch (IOException e){}
-
 		Main.adding.put(player.getUniqueId(), new Data(temp));
 
 		Utils.sendMessage(player,"&aRight click a minecraft:skull to set the egg/present!");

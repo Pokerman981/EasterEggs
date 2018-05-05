@@ -2,6 +2,7 @@ package me.pokerman99.EasterEggs;
 
 import com.google.inject.Inject;
 import me.pokerman99.EasterEggs.commands.EggAddCommand;
+import me.pokerman99.EasterEggs.commands.EggRemoveCommand;
 import me.pokerman99.EasterEggs.commands.ReloadCommand;
 import me.pokerman99.EasterEggs.data.Data;
 import me.pokerman99.EasterEggs.data.ListTypes;
@@ -18,6 +19,7 @@ import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
+import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
@@ -37,7 +39,7 @@ import static me.pokerman99.EasterEggs.data.ListTypes.SPAWN;
 
 @Plugin(id = "eastereggs",
 name = "EasterEggsEC",
-version = "1.0",
+version = "2.0",
 description = "Plugin for Justin's servers providing easter eggs for the players",
 dependencies = {
         @Dependency(id = "luckperms", optional = false)
@@ -89,6 +91,7 @@ public class Main {
     public static EconomyService economyService;
 
     public static Map<UUID, Data> adding = new HashMap<>();
+    public static Map<UUID, Data> removing = new HashMap<>();
     
     public static String host;
     public static int port;
@@ -101,6 +104,7 @@ public class Main {
 		Optional<EconomyService> optionalEconomyService = Sponge.getServiceManager().provide(EconomyService.class);
         economyService = optionalEconomyService.get();
         rootNode = loader.load();
+        instance = this;
         if (!defaultConfig.toFile().exists()){
             generateConfig();
         }
@@ -124,11 +128,22 @@ public class Main {
                 .buildAndRegister(Sponge.getPluginManager().getPlugin("eastereggs").get());
     }
 
+    @Listener
+    public void onServerStarted(GameStartedServerEvent event){
+        Sponge.getCommandManager().process(Sponge.getServer().getConsole(), "easteregg reload");
+    }
+
     private void registerCommands(){
         CommandSpec LocationAddCommand = CommandSpec.builder()
                 .permission("easteregg.admin")
                 .arguments(GenericArguments.onlyOne(GenericArguments.enumValue(Text.of("list"), ListTypes.class)))
                 .executor(new EggAddCommand(this))
+                .build();
+
+        CommandSpec LocationRemoveCommand = CommandSpec.builder()
+                .permission("easteregg.admin")
+                .arguments(GenericArguments.onlyOne(GenericArguments.enumValue(Text.of("list"), ListTypes.class)))
+                .executor(new EggRemoveCommand())
                 .build();
 
         CommandSpec ReloadCommand = CommandSpec.builder()
@@ -150,6 +165,7 @@ public class Main {
 
     private void generateConfig()throws IOException{
         rootNode.getNode("config-version").setValue("1.3");
+        rootNode.getNode("types").setValue(null);
         rootNode.getNode("types", SPAWN, "total").setValue(0);
         rootNode.getNode("types", EASTER, "total").setValue(0);
         rootNode.getNode("data").setValue(null);
