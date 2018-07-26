@@ -5,6 +5,7 @@ import me.pokerman99.EasterEggs.Utils;
 import me.pokerman99.EasterEggs.data.Data;
 import me.pokerman99.EasterEggs.event.FoundEvent;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.block.tileentity.TileEntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
@@ -18,6 +19,9 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.Optional;
 
 public class InteractBlockListener {
@@ -33,24 +37,32 @@ public class InteractBlockListener {
 
         if (Main.adding.containsKey(player.getUniqueId())){
             Data data = Main.adding.get(player.getUniqueId());
+
             tileEntity.get().offer(new Data(data.getEggdata()));
+
             Main.rootNode.getNode("types", data.getEggdata().get(0), "locations", data.getEggdata().get(1)).setValue(location.getBiomePosition() + " " + Utils.getDim(player.getWorld().getUniqueId()));
             Main.rootNode.getNode("types", data.getEggdata().get(0), "total").setValue(data.getEggdata().get(1));
+
             try {Main.getInstance().save();} catch (IOException e){}
 
             Utils.sendMessage(player, "&aSuccessfully set egg/present!");
-
             Main.adding.remove(player.getUniqueId());
 
-        } else if (Main.removing.containsKey(player.getUniqueId())){
-            Main.removing.remove(player.getUniqueId());
+        } else if (Main.removing.contains(player.getIdentifier())){
+            Main.removing.remove(player.getIdentifier());
+
             Data data = tileEntity.get().get(Data.class).get();
             int total = Main.rootNode.getNode("types", data.getEggdata().get(0), "total").getInt();
+
             Main.rootNode.getNode("types", data.getEggdata().get(0), "total").setValue(total - 1);
             Main.rootNode.getNode("types", data.getEggdata().get(0), "locations", data.getEggdata().get(1)).setValue(null);
+
             try{Main.getInstance().save();} catch (IOException e){}
+
+            removeFromDB(data.getEggdata().get(2));
+
             location.removeBlock();
-            Utils.sendMessage(player, "&aSuccessfully broke the block!");
+            Utils.sendMessage(player, "&aSuccessfully removed present/egg!");
 
         } else if (location.get(Data.class).isPresent()){
             Data data = location.get(Data.class).get();
@@ -58,6 +70,26 @@ public class InteractBlockListener {
 
             Sponge.getEventManager().post(new FoundEvent(player, data, cause));
         }
+    }
+
+    @Listener
+    public void onLeftClick(InteractBlockEvent.Primary event, @First Player player) {
+	    if (!event.getTargetBlock().getLocation().isPresent()) return;
+	    Location<World> location = event.getTargetBlock().getLocation().get();
+	    Optional<TileEntity> tileEntity = location.getTileEntity();
+
+	    if (!tileEntity.isPresent() || !location.getTileEntity().get().getType().equals(TileEntityTypes.SKULL)) return;
+	    if (!tileEntity.get().get(Data.class).isPresent()) return;
+
+	    event.setCancelled(true);
+
+	    Utils.sendMessage(player, "&cYou cannot break this block!");
+    }
+
+
+    void removeFromDB(String egguuid){
+	    String sql = "DELETE FROM eggdata WHERE egguuid='" + egguuid + "'";
+        Main.execute(sql);
     }
 
 }

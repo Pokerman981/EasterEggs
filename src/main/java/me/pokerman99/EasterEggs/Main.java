@@ -2,11 +2,12 @@ package me.pokerman99.EasterEggs;
 
 import com.google.inject.Inject;
 import me.pokerman99.EasterEggs.commands.EggAddCommand;
+import me.pokerman99.EasterEggs.commands.EggChangeRewardCommand;
 import me.pokerman99.EasterEggs.commands.EggRemoveCommand;
 import me.pokerman99.EasterEggs.commands.ReloadCommand;
 import me.pokerman99.EasterEggs.data.Data;
 import me.pokerman99.EasterEggs.data.ListTypes;
-import me.pokerman99.EasterEggs.listeners.ConnectionListener;
+import me.pokerman99.EasterEggs.data.RewardTypes;
 import me.pokerman99.EasterEggs.listeners.FoundListener;
 import me.pokerman99.EasterEggs.listeners.InteractBlockListener;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -28,14 +29,13 @@ import org.spongepowered.api.text.Text;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.*;
 import java.util.logging.Logger;
 
-import static me.pokerman99.EasterEggs.data.ListTypes.EASTER;
-import static me.pokerman99.EasterEggs.data.ListTypes.SPAWN;
+import static me.pokerman99.EasterEggs.data.ListTypes.*;
 
 @Plugin(id = "eastereggs",
 name = "EasterEggsEC",
@@ -91,7 +91,7 @@ public class Main {
     public static EconomyService economyService;
 
     public static Map<UUID, Data> adding = new HashMap<>();
-    public static Map<UUID, Data> removing = new HashMap<>();
+    public static List<String> removing = new ArrayList<>();
     
     public static String host;
     public static int port;
@@ -109,15 +109,18 @@ public class Main {
             generateConfig();
         }
 
-        if (rootNode.getNode("config-version").getString().equals("1.2")){
-            rootNode.getNode("locations").setValue(null);
-            rootNode.getNode("easter").setValue(null);
-            generateConfig();
+        if (rootNode.getNode("config-version").getString().equals("1.4")){
+            //generateConfig();
+            generateConfig15();
         }
 
         loadSQL();
-
         registerCommands();
+
+        try {
+            getConnection();
+            createTables();
+        } catch (SQLException e) {}
 
         DataRegistration.builder()
                 .dataClass(Data.class)
@@ -140,6 +143,14 @@ public class Main {
                 .executor(new EggAddCommand(this))
                 .build();
 
+        CommandSpec ChangeRewardCommand = CommandSpec.builder()
+                .permission("easteregg.admin")
+                .arguments(GenericArguments.onlyOne(GenericArguments.enumValue(Text.of("list"), ListTypes.class)),
+                        GenericArguments.onlyOne(GenericArguments.enumValue(Text.of("rewards"), RewardTypes.class)),
+                        GenericArguments.onlyOne(GenericArguments.integer(Text.of("amount"))))
+                .executor(new EggChangeRewardCommand())
+                .build();
+
         CommandSpec LocationRemoveCommand = CommandSpec.builder()
                 .permission("easteregg.admin")
                 .arguments(GenericArguments.onlyOne(GenericArguments.enumValue(Text.of("list"), ListTypes.class)))
@@ -153,23 +164,151 @@ public class Main {
         CommandSpec Main = CommandSpec.builder()
                 .permission("easteregg.admin")
                 .child(LocationAddCommand, "add")
+                .child(ChangeRewardCommand, "change")
+                .child(LocationRemoveCommand, "remove")
                 .child(ReloadCommand, "reload")
                 .build();
 
         Sponge.getCommandManager().register(this, Main, "easteregg", "presents");
 
         Sponge.getEventManager().registerListeners(this, new FoundListener(this));
-        Sponge.getEventManager().registerListeners(this, new ConnectionListener(this));
         Sponge.getEventManager().registerListeners(this, new InteractBlockListener());
     }
 
     private void generateConfig()throws IOException{
-        rootNode.getNode("config-version").setValue("1.3");
+        rootNode.getNode("config-version").setValue("1.6");
         rootNode.getNode("types").setValue(null);
-        rootNode.getNode("types", SPAWN, "total").setValue(0);
-        rootNode.getNode("types", EASTER, "total").setValue(0);
-        rootNode.getNode("data").setValue(null);
+
+        CommentedConfigurationNode total = rootNode.getNode("types");
+        total.getNode(SPAWN, "total").setValue(0);
+        total.getNode(EASTER, "total").setValue(0);
+        total.getNode(DSHOP, "total").setValue(0);
+        total.getNode(EV, "total").setValue(0);
+        total.getNode(SAFARI, "total").setValue(0);
+        total.getNode(GYMS, "total").setValue(0);
+        total.getNode(HUB, "total").setValue(0);
+        total.getNode(WILDS, "total").setValue(0);
+        total.getNode(ADEVENTURE, "total").setValue(0);
+        total.getNode(BATTLE, "total").setValue(0);
+        total.getNode(SHRINES, "total").setValue(0);
+
+        CommentedConfigurationNode money = rootNode.getNode("types");
+        money.getNode(SPAWN, "money").setValue(500);
+        money.getNode(EASTER, "money").setValue(500);
+        money.getNode(DSHOP, "money").setValue(500);
+        money.getNode(EV, "money").setValue(500);
+        money.getNode(SAFARI, "money").setValue(500);
+        money.getNode(GYMS, "money").setValue(300);
+        money.getNode(HUB, "money").setValue(400);
+        money.getNode(WILDS, "money").setValue(400);
+        money.getNode(ADEVENTURE, "money").setValue(300);
+        money.getNode(BATTLE, "money").setValue(300);
+        money.getNode(SHRINES, "money").setValue(300);
+
+        CommentedConfigurationNode tokens = rootNode.getNode("types");
+        tokens.getNode(SPAWN, "tokens").setValue(5);
+        tokens.getNode(EASTER, "tokens").setValue(5);
+        tokens.getNode(DSHOP, "tokens").setValue(25);
+        tokens.getNode(EV, "tokens").setValue(25);
+        tokens.getNode(SAFARI, "tokens").setValue(25);
+        tokens.getNode(GYMS, "tokens").setValue(10);
+        tokens.getNode(HUB, "tokens").setValue(20);
+        tokens.getNode(WILDS, "tokens").setValue(20);
+        tokens.getNode(ADEVENTURE, "tokens").setValue(10);
+        tokens.getNode(BATTLE, "tokens").setValue(10);
+        tokens.getNode(SHRINES, "tokens").setValue(10);
         save();
+    }
+
+    private void generateConfig15()throws IOException{
+        CommentedConfigurationNode total = rootNode.getNode("types");
+        total.getNode(DSHOP, "total").setValue(0);
+        total.getNode(EV, "total").setValue(0);
+        total.getNode(SAFARI, "total").setValue(0);
+        total.getNode(GYMS, "total").setValue(0);
+        total.getNode(HUB, "total").setValue(0);
+        total.getNode(WILDS, "total").setValue(0);
+        total.getNode(ADEVENTURE, "total").setValue(0);
+        total.getNode(BATTLE, "total").setValue(0);
+        total.getNode(SHRINES, "total").setValue(0);
+
+        CommentedConfigurationNode money = rootNode.getNode("types");
+        money.getNode(SPAWN, "money").setValue(500);
+        money.getNode(EASTER, "money").setValue(500);
+        money.getNode(DSHOP, "money").setValue(500);
+        money.getNode(EV, "money").setValue(500);
+        money.getNode(SAFARI, "money").setValue(500);
+        money.getNode(GYMS, "money").setValue(300);
+        money.getNode(HUB, "money").setValue(400);
+        money.getNode(WILDS, "money").setValue(400);
+        money.getNode(ADEVENTURE, "money").setValue(300);
+        money.getNode(BATTLE, "money").setValue(300);
+        money.getNode(SHRINES, "money").setValue(300);
+
+        CommentedConfigurationNode tokens = rootNode.getNode("types");
+        tokens.getNode(SPAWN, "tokens").setValue(5);
+        tokens.getNode(EASTER, "tokens").setValue(5);
+        tokens.getNode(DSHOP, "tokens").setValue(25);
+        tokens.getNode(EV, "tokens").setValue(25);
+        tokens.getNode(SAFARI, "tokens").setValue(25);
+        tokens.getNode(GYMS, "tokens").setValue(10);
+        tokens.getNode(HUB, "tokens").setValue(20);
+        tokens.getNode(WILDS, "tokens").setValue(20);
+        tokens.getNode(ADEVENTURE, "tokens").setValue(10);
+        tokens.getNode(BATTLE, "tokens").setValue(10);
+        tokens.getNode(SHRINES, "tokens").setValue(10);
+
+        rootNode.getNode("config-version").setValue("1.5");
+        save();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public void createTables() {
+        //language=H2
+        String sql = "CREATE TABLE IF NOT EXISTS `eggdata` ( `id` INT NOT NULL , `playeruuid` VARCHAR(50) NOT NULL , `egguuid` VARCHAR(50) NOT NULL , `type` VARCHAR(50) NOT NULL);";
+        execute(sql);
+    }
+
+    public Connection getConnection() throws SQLException {
+       return DriverManager.getConnection("jdbc:h2:./config/eastereggs/EggData");
+    }
+
+    public static void execute(String sql) {
+        try {
+            Connection connection = Main.getInstance().getConnection();
+            connection.prepareStatement(sql).executeUpdate();
+            connection.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private void loadSQL(){
