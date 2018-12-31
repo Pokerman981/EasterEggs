@@ -14,13 +14,11 @@ import java.sql.*;
 import java.util.UUID;
 
 public class FoundListener {
-
     public Main plugin;
 
     public FoundListener(Main pluginInstance) {
         this.plugin = pluginInstance;
     }
-
 
     @Listener
     public void onFoundListener(me.pokerman99.EasterEggs.event.FoundEvent e, @First Player player){
@@ -50,7 +48,6 @@ public class FoundListener {
             ResultSet resultSet = stmt.executeQuery(sql);
             resultSet.next();
 
-
             if (resultSet.getInt("total") == 0 ){
                 String sql2 = "INSERT INTO eggdata(id,playeruuid,egguuid,type) VALUES (?,?,?,?);";
                 PreparedStatement preparedStatement = connection.prepareStatement(sql2);
@@ -60,6 +57,7 @@ public class FoundListener {
                 preparedStatement.setString(4, type);
                 preparedStatement.execute();
                 resultSet.close();
+                connection.close();
                 return true;
             }
 
@@ -79,6 +77,7 @@ public class FoundListener {
             Statement stmt = connection.createStatement();
             ResultSet resultSet = stmt.executeQuery(sql);
             resultSet.next();
+            connection.close();
 
             return resultSet.getInt("total");
         } catch (SQLException e) {

@@ -86,10 +86,8 @@ public class InteractBlockListener {
 	    Utils.sendMessage(player, "&cYou cannot break this block!");
     }
 
-
     void removeFromDB(String egguuid){
 	    String sql = "DELETE FROM eggdata WHERE egguuid='" + egguuid + "'";
         Main.execute(sql);
     }
-
 }

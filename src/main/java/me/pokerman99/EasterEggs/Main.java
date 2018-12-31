@@ -1,5 +1,6 @@
 package me.pokerman99.EasterEggs;
 
+import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
 import me.pokerman99.EasterEggs.commands.EggAddCommand;
 import me.pokerman99.EasterEggs.commands.EggChangeRewardCommand;
@@ -17,9 +18,15 @@ import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
+import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataRegistration;
+import org.spongepowered.api.data.key.Key;
+import org.spongepowered.api.data.value.mutable.ListValue;
+import org.spongepowered.api.data.value.mutable.Value;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.GameRegistryEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
@@ -38,25 +45,20 @@ import java.util.logging.Logger;
 import static me.pokerman99.EasterEggs.data.ListTypes.*;
 
 @Plugin(id = "eastereggs",
-name = "EasterEggsEC",
-version = "2.0",
-description = "Plugin for Justin's servers providing easter eggs for the players",
-dependencies = {
-        @Dependency(id = "luckperms", optional = false)
-})
-
+        name = "EasterEggsEC",
+        version = "2.0",
+        description = "Plugin for Justin's servers providing easter eggs for the players",
+        dependencies = {
+            @Dependency(id = "luckperms", optional = false)
+        })
 public class Main {
-
-	@Inject
-	@DefaultConfig(sharedRoot = false)
+	@Inject @DefaultConfig(sharedRoot = false)
 	private Path defaultConfig;
 
-	@Inject
-	@DefaultConfig(sharedRoot = false)
+	@Inject @DefaultConfig(sharedRoot = false)
 	public ConfigurationLoader<CommentedConfigurationNode> loader;
 
-	@Inject
-	@ConfigDir(sharedRoot = false)
+	@Inject @ConfigDir(sharedRoot = false)
 	private Path ConfigDir;
 	
 	@Inject
@@ -64,41 +66,28 @@ public class Main {
 	public PluginContainer getPlugin() {
 		return this.plugin;
 	}
-
 	public static CommentedConfigurationNode rootNode;
-
 	public static CommentedConfigurationNode config() {
 		return rootNode;
 	}
-
-	public void save() throws IOException {
-		loader.save(config());
-	}
-
-	@Inject
-	private Logger logger;
-
-	public Logger getLogger() {
-		return logger;
-	}
-	
     public static Main instance;
-
     public static Main getInstance(){
         return instance;
     }
-    
     public static EconomyService economyService;
-
     public static Map<UUID, Data> adding = new HashMap<>();
     public static List<String> removing = new ArrayList<>();
-    
     public static String host;
     public static int port;
     public static String db;
     public static String user;
     public static String pass;
-    
+    public static Key<ListValue<String>> EGGDATA;
+
+    public void save() throws IOException {
+        loader.save(config());
+    }
+
     @Listener
     public void onInit(GameInitializationEvent event) throws IOException{
 		Optional<EconomyService> optionalEconomyService = Sponge.getServiceManager().provide(EconomyService.class);
@@ -120,7 +109,9 @@ public class Main {
         try {
             getConnection();
             createTables();
-        } catch (SQLException e) {}
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         DataRegistration.builder()
                 .dataClass(Data.class)
@@ -129,6 +120,21 @@ public class Main {
                 .manipulatorId("eggdatas")
                 .dataName("eggdata")
                 .buildAndRegister(Sponge.getPluginManager().getPlugin("eastereggs").get());
+    }
+
+    @Listener
+    public void onPreInit(GamePreInitializationEvent e) {
+        EGGDATA = Key.builder()
+                .type(new TypeToken<ListValue<String>>(){})
+                .query(DataQuery.of("Eggdata"))
+                .id("eastereggs:eggdata")
+                .name("Eggdata")
+                .build();
+    }
+
+    @Listener
+    public void onRegister(GameRegistryEvent.Register<Key<?>> e) {
+        e.register(EGGDATA);
     }
 
     @Listener
@@ -170,7 +176,6 @@ public class Main {
                 .build();
 
         Sponge.getCommandManager().register(this, Main, "easteregg", "presents");
-
         Sponge.getEventManager().registerListeners(this, new FoundListener(this));
         Sponge.getEventManager().registerListeners(this, new InteractBlockListener());
     }
@@ -262,34 +267,6 @@ public class Main {
         save();
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public void createTables() {
         //language=H2
         String sql = "CREATE TABLE IF NOT EXISTS `eggdata` ( `id` INT NOT NULL , `playeruuid` VARCHAR(50) NOT NULL , `egguuid` VARCHAR(50) NOT NULL , `type` VARCHAR(50) NOT NULL);";
@@ -305,7 +282,6 @@ public class Main {
             Connection connection = Main.getInstance().getConnection();
             connection.prepareStatement(sql).executeUpdate();
             connection.close();
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -327,11 +303,4 @@ public class Main {
         Main.user = rootNode.getNode(new Object[] { "sql" }).getNode(new Object[] { "user" }).getString();
         Main.pass = rootNode.getNode(new Object[] { "sql" }).getNode(new Object[] { "pass" }).getString();
     }
-
-  
-    
-    
-    
-    
-	
 }

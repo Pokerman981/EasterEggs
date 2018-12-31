@@ -3,6 +3,8 @@ package me.pokerman99.EasterEggs.data;
 import java.util.List;;
 import java.util.Optional;
 import javax.annotation.Generated;
+
+import me.pokerman99.EasterEggs.Main;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
@@ -34,9 +36,9 @@ public class Data extends AbstractData<Data, Data.Immutable> {
 
     @Override
     public void registerGettersAndSetters() {
-        registerFieldGetter(Keys.EGGDATA, this::getEggdata);
-        registerFieldSetter(Keys.EGGDATA, this::setEggdata);
-        registerKeyValue(Keys.EGGDATA, this::eggdata);
+        registerFieldGetter(Main.EGGDATA, this::getEggdata);
+        registerFieldSetter(Main.EGGDATA, this::setEggdata);
+        registerKeyValue(Main.EGGDATA, this::eggdata);
     }
 
     public List<String> getEggdata() {
@@ -48,7 +50,7 @@ public class Data extends AbstractData<Data, Data.Immutable> {
     }
 
     public ListValue<String> eggdata() {
-        return Sponge.getRegistry().getValueFactory().createListValue(Keys.EGGDATA, eggdata);
+        return Sponge.getRegistry().getValueFactory().createListValue(Main.EGGDATA, eggdata);
     }
 
     @Override
@@ -66,7 +68,7 @@ public class Data extends AbstractData<Data, Data.Immutable> {
     }
 
     public Optional<Data> from(DataView container) {
-        container.getStringList(Keys.EGGDATA.getQuery()).ifPresent(v -> eggdata = v);
+        container.getStringList(Main.EGGDATA.getQuery()).ifPresent(v -> eggdata = v);
         return Optional.of(this);
     }
 
@@ -88,7 +90,7 @@ public class Data extends AbstractData<Data, Data.Immutable> {
     @Override
     public DataContainer toContainer() {
         return super.toContainer()
-                .set(Keys.EGGDATA.getQuery(), eggdata);
+                .set(Main.EGGDATA.getQuery(), eggdata);
     }
 
     @Generated(value = "flavor.pie.generator.data.DataManipulatorGenerator", date = "2018-04-08T19:36:57.749Z")
@@ -108,8 +110,8 @@ public class Data extends AbstractData<Data, Data.Immutable> {
 
         @Override
         public void registerGetters() {
-            registerFieldGetter(Keys.EGGDATA, this::getEggdata);
-            registerKeyValue(Keys.EGGDATA, this::eggdata);
+            registerFieldGetter(Main.EGGDATA, this::getEggdata);
+            registerKeyValue(Main.EGGDATA, this::eggdata);
         }
 
         public List<String> getEggdata() {
@@ -117,7 +119,7 @@ public class Data extends AbstractData<Data, Data.Immutable> {
         }
 
         public ImmutableListValue<String> eggdata() {
-            return Sponge.getRegistry().getValueFactory().createListValue(Keys.EGGDATA, eggdata).asImmutable();
+            return Sponge.getRegistry().getValueFactory().createListValue(Main.EGGDATA, eggdata).asImmutable();
         }
 
         @Override
@@ -133,7 +135,7 @@ public class Data extends AbstractData<Data, Data.Immutable> {
         @Override
         public DataContainer toContainer() {
             return super.toContainer()
-                    .set(Keys.EGGDATA.getQuery(), eggdata);
+                    .set(Main.EGGDATA.getQuery(), eggdata);
         }
 
     }
