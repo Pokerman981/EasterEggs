@@ -27,8 +27,7 @@ public class EggAddCommand implements CommandExecutor{
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		Player player = (Player) src;
 		ListTypes event = args.<ListTypes>getOne("list").get();
-		//TO-DO: Add if statement in types EVENT total does not exist to make it 0 by default.
-		String total = plugin.rootNode.getNode("types", event.toString(), "total").getString();
+		String total = plugin.rootNode.getNode("types", event.toString(), "total").getString("0");
 		UUID random = UUID.randomUUID();
 
 		List<String> temp = new ArrayList<>();
