@@ -37,7 +37,7 @@ public class EggAddCommand implements CommandExecutor{
 
 		Main.adding.put(player.getUniqueId(), new Data(temp));
 
-		Utils.sendMessage(player,"&aRight click a minecraft:skull to set the egg/present!");
+		Utils.sendMessage(player,"&e&l[PresentHunt] &aRight click a minecraft:skull to set the egg/present!");
 
         return CommandResult.success();
 	}

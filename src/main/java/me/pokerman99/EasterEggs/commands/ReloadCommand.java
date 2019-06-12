@@ -22,7 +22,7 @@ public class ReloadCommand implements CommandExecutor {
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         try {
             plugin.rootNode = plugin.loader.load();
-            Utils.sendMessage(src, "&aReloaded");
+            Utils.sendMessage(src, "&e&l[PresentHunt] &aReloaded config");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

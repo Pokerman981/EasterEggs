@@ -14,21 +14,18 @@ import org.spongepowered.api.entity.living.player.Player;
 import java.io.IOException;
 
 public class EggChangeRewardCommand implements CommandExecutor {
-
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         Player player = (Player) src;
-        ListTypes event = args.<ListTypes>getOne("list").get();
-        RewardTypes placeholderreward = args.<RewardTypes>getOne("rewards").get();
-        int amount = args.<Integer>getOne("amount").get();
+        String event_type = args.<ListTypes>getOne("event_type").get().toString();
+        String reward_type = args.<RewardTypes>getOne("reward_type").get().toString().toLowerCase();
+        String value = args.<String>getOne("value").get();
 
-        String rewards = String.valueOf(placeholderreward).toLowerCase();
+        Main.rootNode.getNode("types", event_type.toUpperCase(), reward_type).setValue(value);
 
-        Main.getInstance().rootNode.getNode("types", event.toString(), rewards).setValue(amount);
-        try{Main.getInstance().save();} catch (IOException e){e.printStackTrace();}
+        try {Main.getInstance().save();} catch (IOException e){e.printStackTrace();}
 
-        Utils.sendMessage(player, "&aSuccessfully set " + event + "'s " + rewards + " reward to " + amount);
-
+        Utils.sendMessage(player, "&e&l[PresentHunt] &aSuccessfully set " + event_type + "'s " + reward_type + " value to " + value);
 
         return CommandResult.success();
     }

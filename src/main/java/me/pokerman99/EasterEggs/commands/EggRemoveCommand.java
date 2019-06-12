@@ -2,7 +2,6 @@ package me.pokerman99.EasterEggs.commands;
 
 import me.pokerman99.EasterEggs.Main;
 import me.pokerman99.EasterEggs.Utils;
-import me.pokerman99.EasterEggs.data.ListTypes;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -18,7 +17,7 @@ public class EggRemoveCommand implements CommandExecutor{
 
         Main.removing.add(player.getIdentifier());
 
-        Utils.sendMessage(player, "&aRight click the present/egg you wish to remove!");
+        Utils.sendMessage(player, "&e&l[PresentHunt] &aRight click the present/egg you wish to remove!");
         return CommandResult.success();
     }
 }

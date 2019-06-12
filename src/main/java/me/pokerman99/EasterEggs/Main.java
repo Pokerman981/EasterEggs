@@ -2,10 +2,7 @@ package me.pokerman99.EasterEggs;
 
 import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
-import me.pokerman99.EasterEggs.commands.EggAddCommand;
-import me.pokerman99.EasterEggs.commands.EggChangeRewardCommand;
-import me.pokerman99.EasterEggs.commands.EggRemoveCommand;
-import me.pokerman99.EasterEggs.commands.ReloadCommand;
+import me.pokerman99.EasterEggs.commands.*;
 import me.pokerman99.EasterEggs.data.Data;
 import me.pokerman99.EasterEggs.data.ListTypes;
 import me.pokerman99.EasterEggs.data.RewardTypes;
@@ -22,7 +19,6 @@ import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.value.mutable.ListValue;
-import org.spongepowered.api.data.value.mutable.Value;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.GameRegistryEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
@@ -40,7 +36,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.logging.Logger;
 
 import static me.pokerman99.EasterEggs.data.ListTypes.*;
 
@@ -151,9 +146,9 @@ public class Main {
 
         CommandSpec ChangeRewardCommand = CommandSpec.builder()
                 .permission("easteregg.admin")
-                .arguments(GenericArguments.onlyOne(GenericArguments.enumValue(Text.of("list"), ListTypes.class)),
-                        GenericArguments.onlyOne(GenericArguments.enumValue(Text.of("rewards"), RewardTypes.class)),
-                        GenericArguments.onlyOne(GenericArguments.integer(Text.of("amount"))))
+                .arguments(GenericArguments.onlyOne(GenericArguments.enumValue(Text.of("event_type"), ListTypes.class)),
+                        GenericArguments.onlyOne(GenericArguments.enumValue(Text.of("reward_type"), RewardTypes.class)),
+                        GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of("value"))))
                 .executor(new EggChangeRewardCommand())
                 .build();
 
@@ -161,6 +156,11 @@ public class Main {
                 .permission("easteregg.admin")
                 .arguments(GenericArguments.onlyOne(GenericArguments.enumValue(Text.of("list"), ListTypes.class)))
                 .executor(new EggRemoveCommand())
+                .build();
+
+        CommandSpec CheckCommand = CommandSpec.builder()
+                .permission("easteregg.check")
+                .executor(new CheckCommand())
                 .build();
 
         CommandSpec ReloadCommand = CommandSpec.builder()
@@ -172,6 +172,7 @@ public class Main {
                 .child(LocationAddCommand, "add")
                 .child(ChangeRewardCommand, "change")
                 .child(LocationRemoveCommand, "remove")
+                .child(CheckCommand, "check")
                 .child(ReloadCommand, "reload")
                 .build();
 

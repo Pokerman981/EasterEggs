@@ -5,7 +5,6 @@ import me.pokerman99.EasterEggs.Utils;
 import me.pokerman99.EasterEggs.data.Data;
 import me.pokerman99.EasterEggs.event.FoundEvent;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.block.tileentity.TileEntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
@@ -19,9 +18,6 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.Optional;
 
 public class InteractBlockListener {
@@ -45,7 +41,7 @@ public class InteractBlockListener {
 
             try {Main.getInstance().save();} catch (IOException e){}
 
-            Utils.sendMessage(player, "&aSuccessfully set egg/present!");
+            Utils.sendMessage(player, "&e&l[PresentHunt] &aSuccessfully set egg/present!");
             Main.adding.remove(player.getUniqueId());
 
         } else if (Main.removing.contains(player.getIdentifier())){
@@ -62,7 +58,7 @@ public class InteractBlockListener {
             removeFromDB(data.getEggdata().get(2));
 
             location.removeBlock();
-            Utils.sendMessage(player, "&aSuccessfully removed present/egg!");
+            Utils.sendMessage(player, "&e&l[PresentHunt] &aSuccessfully removed present/egg!");
 
         } else if (location.get(Data.class).isPresent()){
             Data data = location.get(Data.class).get();
@@ -83,7 +79,7 @@ public class InteractBlockListener {
 
 	    event.setCancelled(true);
 
-	    Utils.sendMessage(player, "&cYou cannot break this block!");
+	    Utils.sendMessage(player, "&e&l[PresentHunt] &cYou cannot break this block!");
     }
 
     void removeFromDB(String egguuid){
