@@ -9,14 +9,12 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
-import org.spongepowered.api.entity.living.player.Player;
 
 import java.io.IOException;
 
 public class EggChangeRewardCommand implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        Player player = (Player) src;
         String event_type = args.<ListTypes>getOne("event_type").get().toString();
         String reward_type = args.<RewardTypes>getOne("reward_type").get().toString().toLowerCase();
         String value = args.<String>getOne("value").get();
@@ -25,7 +23,7 @@ public class EggChangeRewardCommand implements CommandExecutor {
 
         try {Main.getInstance().save();} catch (IOException e){e.printStackTrace();}
 
-        Utils.sendMessage(player, "&e&l[PresentHunt] &aSuccessfully set " + event_type + "'s " + reward_type + " value to " + value);
+        Utils.sendMessage(src, "&e&l[PresentHunt] &aSuccessfully set " + event_type + "'s " + reward_type + " value to " + value);
 
         return CommandResult.success();
     }
