@@ -168,7 +168,7 @@ public class Main {
                 .executor(new ReloadCommand(this)).build();
 
         CommandSpec Main = CommandSpec.builder()
-                .permission("easteregg.admin")
+                .permission("easteregg.base")
                 .child(LocationAddCommand, "add")
                 .child(ChangeRewardCommand, "change")
                 .child(LocationRemoveCommand, "remove")
