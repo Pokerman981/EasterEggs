@@ -16,14 +16,6 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.world.DimensionType;
 
-import me.lucko.luckperms.LuckPerms;
-import me.lucko.luckperms.api.Contexts;
-import me.lucko.luckperms.api.LuckPermsApi;
-import me.lucko.luckperms.api.User;
-import me.lucko.luckperms.api.caching.MetaData;
-
-import static me.pokerman99.EasterEggs.data.ListTypes.EASTER;
-
 public class Utils {
 	
 	public Main plugin;
@@ -32,22 +24,22 @@ public class Utils {
 		this.plugin = pluginInstance;
 	}
 	
-    public static MetaData getMetaData(UUID uuid) {
-        LuckPermsApi api = LuckPerms.getApi();
-
-        User user = api.getUserSafe(uuid).orElse(null);
-        if (user == null) {
-            return null;
-        }
-
-        Contexts contexts = api.getContextForUser(user).orElse(null);
-        if (contexts == null) {
-            return null;
-        }
-
-        return user.getCachedData().getMetaData(contexts);
-    }
-    
+//    public static MetaData getMetaData(UUID uuid) {
+//        LuckPermsApi api = LuckPerms.getApi();
+//
+//        User user = api.getUserSafe(uuid).orElse(null);
+//        if (user == null) {
+//            return null;
+//        }
+//
+//        Contexts contexts = api.getContextForUser(user).orElse(null);
+//        if (contexts == null) {
+//            return null;
+//        }
+//
+//        return user.getCachedData().getMetaData(contexts);
+//    }
+//
     public static String timeDiffFormat(long timeDiff) {
         int seconds = (int) timeDiff % 60;
         timeDiff = timeDiff / 60;

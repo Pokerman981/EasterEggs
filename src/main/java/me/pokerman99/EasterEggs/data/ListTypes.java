@@ -12,5 +12,6 @@ public enum ListTypes {
     ADEVENTURE,
     BATTLE,
     SHRINES,
-    E4
+    E4,
+    HALLOWEEN
 }

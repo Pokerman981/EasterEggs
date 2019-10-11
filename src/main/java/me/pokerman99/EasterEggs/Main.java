@@ -92,7 +92,7 @@ public class Main {
 
         if (rootNode.getNode("config-version").getString().equals("1.5")){
             //generateConfig();
-            generateConfig16();
+            generateConfig17();
         }
 
         loadSQL();
@@ -223,19 +223,19 @@ public class Main {
         save();
     }
 
-    private void generateConfig16()throws IOException{
+    private void generateConfig17()throws IOException{
         CommentedConfigurationNode total = rootNode.getNode("types");
-        total.getNode(E4, "total").setValue(0);
+        total.getNode(HALLOWEEN, "total").setValue(0);
 
 
         CommentedConfigurationNode money = rootNode.getNode("types");
-        money.getNode(E4, "money").setValue(500);
+        money.getNode(HALLOWEEN, "money").setValue(500);
 
 
         CommentedConfigurationNode tokens = rootNode.getNode("types");
-        tokens.getNode(E4, "tokens").setValue(5);
+        tokens.getNode(HALLOWEEN, "tokens").setValue(5);
 
-        rootNode.getNode("config-version").setValue("1.6");
+        rootNode.getNode("config-version").setValue("1.7");
         save();
     }
 

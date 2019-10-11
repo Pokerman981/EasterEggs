@@ -20,7 +20,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.4</version>
                 <configuration>
-                    <outputDirectory>C:\Users\troyg\Desktop</outputDirectory>
+                    <outputDirectory>C:\Users\Justin\Desktop\Development\testserver_1.12\mods</outputDirectory>
                 </configuration>
             </plugin>
         </plugins>
@@ -51,18 +51,16 @@
             <scope>provided</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/me.lucko.luckperms/luckperms-api -->
-        <dependency>
-            <groupId>me.lucko.luckperms</groupId>
-            <artifactId>luckperms-api</artifactId>
-            <version>4.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>me.lucko.luckperms</groupId>-->
+<!--            <artifactId>luckperms-api</artifactId>-->
+<!--            <version>4.0</version>-->
+<!--        </dependency>-->
         <!-- https://mvnrepository.com/artifact/com.flowpowered/flow-noise -->
         <dependency>
             <groupId>com.flowpowered</groupId>
             <artifactId>flow-noise</artifactId>
             <version>1.0.0</version>
         </dependency>
-
-
     </dependencies>
 </project>
