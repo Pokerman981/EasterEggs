@@ -24,7 +24,6 @@ import org.spongepowered.api.event.game.GameRegistryEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
-import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.economy.EconomyService;
@@ -42,10 +41,8 @@ import static me.pokerman99.EasterEggs.data.ListTypes.*;
 @Plugin(id = "eastereggs",
         name = "EasterEggsEC",
         version = "2.0",
-        description = "Plugin for Justin's servers providing easter eggs for the players",
-        dependencies = {
-            @Dependency(id = "luckperms", optional = false)
-        })
+        description = "Plugin for Justin's servers providing easter eggs for the players")
+
 public class Main {
 	@Inject @DefaultConfig(sharedRoot = false)
 	private Path defaultConfig;
@@ -93,9 +90,9 @@ public class Main {
             generateConfig();
         }
 
-        if (rootNode.getNode("config-version").getString().equals("1.4")){
+        if (rootNode.getNode("config-version").getString().equals("1.5")){
             //generateConfig();
-            generateConfig15();
+            generateConfig16();
         }
 
         loadSQL();
@@ -226,45 +223,19 @@ public class Main {
         save();
     }
 
-    private void generateConfig15()throws IOException{
+    private void generateConfig16()throws IOException{
         CommentedConfigurationNode total = rootNode.getNode("types");
-        total.getNode(DSHOP, "total").setValue(0);
-        total.getNode(EV, "total").setValue(0);
-        total.getNode(SAFARI, "total").setValue(0);
-        total.getNode(GYMS, "total").setValue(0);
-        total.getNode(HUB, "total").setValue(0);
-        total.getNode(WILDS, "total").setValue(0);
-        total.getNode(ADEVENTURE, "total").setValue(0);
-        total.getNode(BATTLE, "total").setValue(0);
-        total.getNode(SHRINES, "total").setValue(0);
+        total.getNode(E4, "total").setValue(0);
+
 
         CommentedConfigurationNode money = rootNode.getNode("types");
-        money.getNode(SPAWN, "money").setValue(500);
-        money.getNode(EASTER, "money").setValue(500);
-        money.getNode(DSHOP, "money").setValue(500);
-        money.getNode(EV, "money").setValue(500);
-        money.getNode(SAFARI, "money").setValue(500);
-        money.getNode(GYMS, "money").setValue(300);
-        money.getNode(HUB, "money").setValue(400);
-        money.getNode(WILDS, "money").setValue(400);
-        money.getNode(ADEVENTURE, "money").setValue(300);
-        money.getNode(BATTLE, "money").setValue(300);
-        money.getNode(SHRINES, "money").setValue(300);
+        money.getNode(E4, "money").setValue(500);
+
 
         CommentedConfigurationNode tokens = rootNode.getNode("types");
-        tokens.getNode(SPAWN, "tokens").setValue(5);
-        tokens.getNode(EASTER, "tokens").setValue(5);
-        tokens.getNode(DSHOP, "tokens").setValue(25);
-        tokens.getNode(EV, "tokens").setValue(25);
-        tokens.getNode(SAFARI, "tokens").setValue(25);
-        tokens.getNode(GYMS, "tokens").setValue(10);
-        tokens.getNode(HUB, "tokens").setValue(20);
-        tokens.getNode(WILDS, "tokens").setValue(20);
-        tokens.getNode(ADEVENTURE, "tokens").setValue(10);
-        tokens.getNode(BATTLE, "tokens").setValue(10);
-        tokens.getNode(SHRINES, "tokens").setValue(10);
+        tokens.getNode(E4, "tokens").setValue(5);
 
-        rootNode.getNode("config-version").setValue("1.5");
+        rootNode.getNode("config-version").setValue("1.6");
         save();
     }
 

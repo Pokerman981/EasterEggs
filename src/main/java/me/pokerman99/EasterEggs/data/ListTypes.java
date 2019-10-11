@@ -11,5 +11,6 @@ public enum ListTypes {
     WILDS,
     ADEVENTURE,
     BATTLE,
-    SHRINES
+    SHRINES,
+    E4
 }
